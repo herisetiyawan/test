@@ -1,0 +1,68 @@
+<!-- START SNIPPET: LogbackConfiguration -->
+<configuration debug="true" scan="true" scanPeriod="5 seconds">
+
+    <conversionRule conversionWord="prefixPattern" 
+                        converterClass="ch.qos.logback.core.pattern.PrefixPropagatingCompositeConverter" />
+    <conversionRule conversionWord="prefixMsg" 
+                        converterClass="pegasus.framework.logback.PrefixAwareMessageConverter" />
+    <conversionRule conversionWord="prefixedThrowable" 
+                        converterClass="ch.qos.logback.classic.pattern.PrefixAwareExtendedThrowableConverter" />
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/apps/misys/logs/${applicationName}.${HOSTNAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/apps/misys/logs/${applicationName}.${HOSTNAME}.%d.gz</fileNamePattern>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%prefixPattern(%(%date %.-1level [%thread] [%.20mdc{pegasus.testId}] [%.20mdc{sessionId}] [%.20mdc{pegasus.rootId}] [%logger{5}] - ){}%(%date %.-1level [%thread] [%.20mdc{pegasus.testId}] [%.20mdc{sessionId}] [%.20mdc{pegasus.rootId}] [%logger{5}] + )){}%prefixMsg%n%prefixedThrowable</pattern>
+        </encoder>
+    </appender>		
+       
+    <appender name="RSYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
+        <!-- SYSLOG Appender for Arcsight -->
+        <syslogHost>10.1.65.99</syslogHost>
+        <port>11514</port>
+        <facility>LOCAL0</facility>
+        <suffixPattern>%prefixPattern(%(%date%.-1level[%thread] [%.20mdc{pegasus.testId}] [%.20mdc{sessionId}] [%.20mdc{pegasus.rootId}] [%logger{5}] - ){}%(%date%.-1level[%thread] [%.20mdc{pegasus.testId}] [%.20mdc{sessionId}] [%.20mdc{pegasus.rootId}] [%logger{5}] + )){}%prefixMsg%n%prefixedThrowable</suffixPattern>
+    </appender>
+
+ 
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%prefixPattern(%(%property{applicationName} %date %.-1level [%thread] [%.20mdc{pegasus.testId}] [%.20mdc{sessionId}] [%.20mdc{pegasus.rootId}] [%logger{5}] - ){}%(%property{applicationName}  %date %.-1level [%thread] [%.20mdc{pegasus.testId}] [%.20mdc{sessionId}] [%.20mdc{pegasus.rootId}] [%logger{5}] + )){}%prefixMsg%n%prefixedThrowable</pattern>
+        </encoder>
+    </appender>
+	
+    <logger name="pegasus" level="debug">
+    </logger>
+
+    <logger name="java.sql" level="debug">
+    </logger>
+
+    <logger name="pegasus.framework.async.jms" level="debug">
+    </logger>
+	
+    <logger name="test" level="debug">
+    </logger>
+	
+    <logger name="pegasus.component.auditlog" level="error">
+    </logger>
+ 	
+    <!-- spring integration communication logging -->
+    <logger name="org.springframework.ws.client.MessageTracing.sent" level="debug">
+    </logger>
+    <logger name="org.springframework.ws.client.MessageTracing.received" level="debug">
+    </logger>
+
+    <!-- filter constant jms poll debug logs -->
+    <logger name="org.springframework.integration.jms.DynamicJmsTemplate" level="debug">
+    </logger>
+    <logger name="org.springframework.integration.endpoint.SourcePollingChannelAdapter" level="debug">
+    </logger>
+	
+    <root level="debug">
+        <appender-ref ref="FILE" />
+        <appender-ref ref="RSYSLOG" />
+    </root>
+</configuration>
+<!-- END SNIPPET: LogbackConfiguration -->
